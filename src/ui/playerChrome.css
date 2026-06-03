@@ -133,6 +133,128 @@ body {
   margin-top: 2px;
 }
 
+.mood-badge {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.45rem;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  background: rgba(0, 245, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(0, 245, 255, 0.35);
+}
+
+body[data-mood="energy"] .mood-badge {
+  background: rgba(255, 43, 214, 0.2);
+  color: #ff6ec7;
+  border-color: rgba(255, 43, 214, 0.45);
+}
+
+body[data-mood="focus"] .mood-badge {
+  background: rgba(196, 255, 122, 0.12);
+  color: var(--lcd-text);
+  border-color: rgba(196, 255, 122, 0.35);
+}
+
+.lcd-notes {
+  display: block;
+  font-size: 0.62rem;
+  color: #ff9ee0;
+  margin-top: 0.35rem;
+  line-height: 1.25;
+  max-height: 2.5em;
+  overflow: hidden;
+}
+
+.lcd-notes.hidden {
+  display: none;
+}
+
+.mood-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  font-size: 0.8rem;
+  color: #bbb;
+}
+
+.mood-row select {
+  flex: 1;
+  max-width: 140px;
+  background: #1e1c28;
+  color: var(--accent);
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+}
+
+.copilot-banner {
+  margin-top: 0.85rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 43, 214, 0.12);
+  border: 1px solid rgba(255, 43, 214, 0.45);
+}
+
+.copilot-banner.hidden {
+  display: none;
+}
+
+.copilot-summary {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  color: #f0c8ff;
+}
+
+.copilot-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-copilot-apply {
+  padding: 0.35rem 0.7rem;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #00f5ff, #ff2bd6);
+  color: #0a0612;
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.btn-copilot-dismiss {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: transparent;
+  color: #aaa;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.notes-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #9a8fb8;
+  margin-bottom: 0.35rem;
+}
+
+#session-notes-input {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  background: #0f0d14;
+  color: #e8e0f0;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.45rem;
+}
+
 .transport {
   display: flex;
   justify-content: center;

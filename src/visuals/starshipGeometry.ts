@@ -103,12 +103,23 @@ export function buildStarshipSegments(): Segment[] {
 
   segments.push(...coneLines(coneBaseY + coneHeight, coneBaseY, bodyRadius, 8));
 
+  const noseRing = ringY(coneBaseY + coneHeight * 0.55, bodyRadius * 0.18, 6);
+  segments.push(...connectRing(noseRing));
+
   const ringSegs = 10;
   const bodyTop = ringY(coneBaseY, bodyRadius, ringSegs);
   const bodyMid = ringY(0, bodyRadius, ringSegs);
   const bodyLow = ringY(bodyBottomY, bodyRadius * 1.02, ringSegs);
   segments.push(...connectRing(bodyTop), ...connectRing(bodyMid), ...connectRing(bodyLow));
   segments.push(...connectVertical([bodyTop, bodyMid, bodyLow]));
+
+  const interstage = ringY(bodyBottomY - 0.05, bodyRadius * 1.08, 12);
+  segments.push(...connectRing(interstage));
+  for (let i = 0; i < 4; i++) {
+    const a = interstage[i];
+    const b = bodyLow[i % bodyLow.length];
+    segments.push(seg(a, new THREE.Vector3(b.x, b.y, b.z)));
+  }
 
   for (let i = 0; i < 4; i++) {
     const angle = (i / 4) * Math.PI * 2 + Math.PI * 0.25;

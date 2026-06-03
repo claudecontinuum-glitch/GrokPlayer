@@ -6,6 +6,9 @@ import {
   isPlaying,
   type BandLevels,
 } from "../audio/visualBridge";
+import type { GrokSession } from "../agent/sessionTypes";
+import { MOOD_VISUALS } from "../agent/moodConfig";
+import { getMood } from "../agent/appState";
 
 const CYAN = 0x00f5ff;
 const MAGENTA = 0xff2bd6;
@@ -13,6 +16,7 @@ const MAGENTA = 0xff2bd6;
 export type SceneVisualState = {
   bands: BandLevels;
   reducedMotion: boolean;
+  mood?: GrokSession["mood"];
 };
 
 export class StarshipScene {
@@ -107,9 +111,10 @@ export class StarshipScene {
     this.camera.updateProjectionMatrix();
   }
 
-  private lerpColor(bass: number): void {
+  private lerpColor(bass: number, mood: GrokSession["mood"]): void {
     const mat = this.ship.material as THREE.LineBasicMaterial;
-    const t = Math.min(1, bass * 2.5);
+    const mv = MOOD_VISUALS[mood];
+    const t = Math.min(1, bass * 2.5 * mv.magentaBias + mv.magentaBias * 0.15);
     const c = new THREE.Color(CYAN).lerp(new THREE.Color(MAGENTA), t);
     mat.color.copy(c);
     mat.opacity = 0.75 + getSmoothedBands().mid * 0.25;
@@ -121,15 +126,17 @@ export class StarshipScene {
       external?.bands ??
       (isPlaying() ? getSmoothedBands() : idleBands(elapsed));
     const rm = external?.reducedMotion ?? this.reducedMotion;
+    const mood = external?.mood ?? getMood();
+    const mv = MOOD_VISUALS[mood];
 
-    const orbitSpeed = 0.12 + bands.mid * 0.08;
+    const orbitSpeed = (0.12 + bands.mid * 0.08) * mv.orbitMult;
     this.orbitAngle += orbitSpeed * 0.016;
 
     const pathX = Math.sin(this.orbitAngle * 0.7) * 0.6;
     const pathZ = Math.cos(this.orbitAngle) * 0.5 - 1;
     this.ship.position.set(pathX, Math.sin(elapsed * 0.5) * 0.08, pathZ);
 
-    const scale = 1 + bands.bass * (rm ? 0.02 : 0.08);
+    const scale = 1 + bands.bass * (rm ? 0.02 : 0.08) * mv.bassScaleMult;
     this.ship.scale.setScalar(scale);
     this.ship.rotation.z = Math.sin(elapsed * 0.9) * 0.06 + bands.mid * 0.04;
     this.ship.rotation.x = 0.35 + Math.sin(elapsed * 0.3) * 0.05;
@@ -137,7 +144,7 @@ export class StarshipScene {
     const camR = 6.2;
     const camX = Math.cos(this.orbitAngle) * camR;
     const camZ = Math.sin(this.orbitAngle) * camR;
-    const shake = rm ? 0 : bands.bass * 0.12;
+    const shake = rm ? 0 : bands.bass * 0.12 * mv.shakeMult;
     this.camera.position.set(
       camX + Math.sin(elapsed * 12) * shake,
       2.2 + bands.mid * 0.4,
@@ -145,11 +152,11 @@ export class StarshipScene {
     );
     this.camera.lookAt(pathX, 0.3, pathZ);
 
-    this.lerpColor(bands.bass);
+    this.lerpColor(bands.bass, mood);
 
     const starMat = this.stars.material as THREE.PointsMaterial;
     starMat.opacity = 0.5 + bands.high * 0.5;
-    this.stars.rotation.y = elapsed * 0.02;
+    this.stars.rotation.y = elapsed * 0.02 * mv.starSpeed;
 
     const gridMat = this.grid.material as THREE.LineBasicMaterial;
     gridMat.opacity = 0.2 + bands.mid * 0.35;
@@ -157,10 +164,14 @@ export class StarshipScene {
     this.renderer.render(this.scene, this.camera);
   }
 
-  startLoop(getBands?: () => BandLevels): void {
+  startLoop(getFrameState?: () => { bands: BandLevels; mood: GrokSession["mood"] }): void {
     const frame = () => {
-      const bands = getBands?.() ?? (isPlaying() ? getSmoothedBands() : idleBands(this.clock.getElapsedTime()));
-      this.tick({ bands, reducedMotion: this.reducedMotion });
+      const fb = getFrameState?.();
+      const bands =
+        fb?.bands ??
+        (isPlaying() ? getSmoothedBands() : idleBands(this.clock.getElapsedTime()));
+      const mood = fb?.mood ?? getMood();
+      this.tick({ bands, mood, reducedMotion: this.reducedMotion });
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);

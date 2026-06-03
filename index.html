@@ -24,8 +24,10 @@
             <div class="lcd-screen">
               <canvas id="visual-canvas" aria-label="Visualizador Starship 3D"></canvas>
               <div class="lcd-overlay">
+                <span id="mood-badge" class="mood-badge" data-mood="chill">Chill</span>
                 <span id="track-title" class="lcd-title">Sin pista</span>
                 <span id="track-artist" class="lcd-artist">Arrastra archivos o pulsa Abrir</span>
+                <span id="lcd-notes" class="lcd-notes hidden"></span>
               </div>
             </div>
           </div>
@@ -42,6 +44,15 @@
             <span id="time-total" class="time">0:00</span>
           </div>
 
+          <div class="mood-row">
+            <label for="mood-select">Vibe</label>
+            <select id="mood-select" aria-label="Estado de ánimo visual">
+              <option value="chill">Chill</option>
+              <option value="energy">Energy</option>
+              <option value="focus">Focus</option>
+            </select>
+          </div>
+
           <div class="controls-row">
             <label class="vol-label">
               Vol
@@ -52,6 +63,15 @@
               <span class="btn-file">Abrir música</span>
             </label>
             <button type="button" id="btn-session" class="btn-secondary">Sesión</button>
+            <button type="button" id="btn-listening-card" class="btn-secondary">Tarjeta</button>
+          </div>
+
+          <div id="copilot-banner" class="copilot-banner hidden">
+            <p id="copilot-summary" class="copilot-summary"></p>
+            <div class="copilot-actions">
+              <button type="button" id="btn-apply-copilot" class="btn-copilot-apply">Aplicar propuesta</button>
+              <button type="button" id="btn-dismiss-copilot" class="btn-copilot-dismiss">Descartar</button>
+            </div>
           </div>
 
           <div class="bands-debug" id="bands-debug" aria-hidden="true">
@@ -69,11 +89,14 @@
 
       <section class="session-panel hidden" id="session-panel">
         <h2>Sesión compartida</h2>
-        <p class="session-hint">Exporta o pega JSON para que Hermes (u otro agente) co-pilote la escucha.</p>
+        <p class="session-hint">Pega JSON del agente → <strong>Previsualizar</strong> → revisa el banner → <strong>Aplicar propuesta</strong>. O exporta tu sesión actual.</p>
+        <label class="notes-label" for="session-notes-input">Notas (humano o Hermes)</label>
+        <textarea id="session-notes-input" rows="2" placeholder="Ej: Buena para estudiar, sube el mood a energy en el drop…"></textarea>
         <textarea id="session-json" rows="10" spellcheck="false"></textarea>
         <div class="session-actions">
           <button type="button" id="btn-export-session">Exportar</button>
-          <button type="button" id="btn-import-session">Aplicar sesión</button>
+          <button type="button" id="btn-import-session">Previsualizar</button>
+          <button type="button" id="btn-apply-session">Aplicar ya</button>
           <button type="button" id="btn-close-session">Cerrar</button>
         </div>
       </section>

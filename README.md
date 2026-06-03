@@ -20,7 +20,9 @@ Abre la URL que muestra Vite (normalmente `http://localhost:5173`).
 
 1. Pulsa **Abrir música** o arrastra archivos (MP3, WAV, OGG, FLAC…).
 2. **▶** reproduce; el Starship en la pantalla LCD reacciona a graves, medios y agudos.
-3. **Sesión** exporta/importa JSON para co-pilotaje con un agente.
+3. **Vibe** (chill / energy / focus) cambia la animación y el badge en el LCD.
+4. **Sesión** — el agente **previsualiza** con JSON; tú **Aplicar propuesta** en el banner.
+5. **Tarjeta** exporta un HTML bonito para compartir el momento (Discord, Telegram).
 
 ## Pulir la animación
 
@@ -46,6 +48,14 @@ curl -X POST http://localhost:5173/api/command -H "Content-Type: application/jso
 ```
 
 Ver [`docs/AGENTS.md`](docs/AGENTS.md) y [`docs/session-protocol.md`](docs/session-protocol.md).
+
+### MCP para Hermes
+
+```bash
+cd mcp-server && npm install
+```
+
+Añade el servidor en tu config MCP (ver `docs/AGENTS.md`). Requiere `npm run dev` en otra terminal.
 
 ## Build para publicar
 

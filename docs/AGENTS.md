@@ -31,9 +31,36 @@ Content-Type: application/json
 { "action": "next" }
 { "action": "prev" }
 { "action": "setMood", "payload": "energy" }
+{ "action": "setNotes", "payload": "Hermes: buena para estudiar" }
+{ "action": "proposeSession", "payload": { ...session } }
+{ "action": "applyPending" }
+{ "action": "rejectPending" }
+{ "action": "loadSession", "payload": { ...session } }
 ```
 
-`loadSession` requiere el cuerpo completo de sesión en `payload` (ver `sessions/example.grokplayer.json`). El humano debe tener ya cargados los archivos cuyos nombres coincidan con `playlist[].path`.
+**Co-pilot:** usa `proposeSession` para que el humano vea el banner y pulse **Aplicar propuesta**. No uses `loadSession` si quieres que el humano confirme.
+
+## MCP server (Hermes)
+
+Con `npm run dev` activo:
+
+```bash
+cd mcp-server && npm install
+```
+
+Config del cliente MCP:
+
+```json
+{
+  "grokplayer": {
+    "command": "node",
+    "args": ["C:/Users/.../GrokPlayer/mcp-server/index.js"],
+    "env": { "GROKPLAYER_URL": "http://127.0.0.1:5173" }
+  }
+}
+```
+
+Tools: `grokplayer_state`, `grokplayer_play`, `grokplayer_pause`, `grokplayer_next`, `grokplayer_set_mood`, `grokplayer_set_notes`, `grokplayer_propose_session`.
 
 ## Ritual sugerido
 
