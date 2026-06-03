@@ -1,0 +1,16 @@
+---
+pid: 28304
+cwd: "C:\Users\administrador_it\OneDrive\Desktop\GrokPlayer"
+command: "cd \"C:\\Users\\administrador_it\\OneDrive\\Desktop\\GrokPlayer\" && npm run dev"
+started_at: 2026-06-03T12:33:29.036Z
+running_for_ms: 150000   
+---
+
+> grokplayer@0.1.0 dev
+> vite
+
+
+  VITE v6.4.3  ready in 236 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose

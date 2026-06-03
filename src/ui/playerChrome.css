@@ -1,0 +1,350 @@
+:root {
+  --bg: #0a0612;
+  --bezel: #3d3a45;
+  --bezel-light: #5c5868;
+  --bezel-dark: #1e1c24;
+  --lcd-bg: #0d1a0d;
+  --lcd-text: #c4ff7a;
+  --lcd-dim: #6a9a4a;
+  --accent: #00f5ff;
+  --accent-hot: #ff2bd6;
+  --font: "Segoe UI", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  background: radial-gradient(ellipse at 50% 0%, #2d1b69 0%, var(--bg) 55%);
+  color: #e8e0f0;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+}
+
+.tagline {
+  margin: 0.35rem 0 1.25rem;
+  color: #9a8fb8;
+  font-size: 0.95rem;
+}
+
+.player-shell {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .player-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+.player-bezel {
+  position: relative;
+  padding: 1.25rem 1.5rem 1.5rem;
+  background: linear-gradient(145deg, var(--bezel-light), var(--bezel) 40%, var(--bezel-dark));
+  border-radius: 18px;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.5),
+    0 12px 40px rgba(0, 0, 0, 0.55);
+  border: 3px solid #2a2830;
+}
+
+.screw {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #888, #333);
+  box-shadow: inset 0 1px 2px #111;
+}
+
+.screw-tl { top: 10px; left: 10px; }
+.screw-tr { top: 10px; right: 10px; }
+.screw-bl { bottom: 10px; left: 10px; }
+.screw-br { bottom: 10px; right: 10px; }
+
+.lcd-frame {
+  padding: 10px;
+  background: #111;
+  border-radius: 8px;
+  box-shadow: inset 0 0 12px #000;
+}
+
+.lcd-screen {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--lcd-bg);
+  border: 2px solid #1a3a1a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#visual-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: contrast(1.1) saturate(1.2);
+}
+
+.lcd-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.4rem 0.6rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  pointer-events: none;
+}
+
+.lcd-title {
+  display: block;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 0.85rem;
+  color: var(--lcd-text);
+  text-shadow: 0 0 6px rgba(196, 255, 122, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lcd-artist {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--lcd-dim);
+  margin-top: 2px;
+}
+
+.transport {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-transport {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #555, #2a2a2a);
+  color: #eee;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #111, 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-transport:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #111;
+}
+
+.btn-play {
+  width: 56px;
+  height: 56px;
+  font-size: 1.25rem;
+  background: linear-gradient(180deg, #4a6a8a, #2a4055);
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.time {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: #aaa;
+  min-width: 2.5rem;
+}
+
+.seek {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.vol-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #bbb;
+}
+
+.vol-label input {
+  width: 90px;
+  accent-color: var(--accent);
+}
+
+.file-label {
+  cursor: pointer;
+}
+
+.btn-file,
+.btn-secondary {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #2a2838;
+  color: #ddd;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-file:hover,
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.bands-debug {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.band-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  color: #666;
+  flex: 1;
+}
+
+.band-bar .bar {
+  flex: 1;
+  height: 6px;
+  background: #1a1a22;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.band-bar .bar i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hot));
+  transition: width 0.05s linear;
+}
+
+.queue-panel {
+  background: rgba(20, 16, 32, 0.85);
+  border: 1px solid #3a3550;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.queue-panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+.queue-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.8rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.queue-list li {
+  padding: 0.25rem 0;
+  cursor: pointer;
+  color: #b8b0c8;
+}
+
+.queue-list li.active {
+  color: var(--lcd-text);
+  font-weight: 600;
+}
+
+.queue-list li:hover {
+  color: var(--accent);
+}
+
+.session-panel {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(20, 16, 32, 0.9);
+  border-radius: 12px;
+  border: 1px solid #4a4060;
+}
+
+.session-panel.hidden {
+  display: none;
+}
+
+.session-panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.session-hint {
+  font-size: 0.85rem;
+  color: #9a8fb8;
+  margin: 0 0 0.75rem;
+}
+
+#session-json {
+  width: 100%;
+  font-family: Consolas, monospace;
+  font-size: 0.8rem;
+  background: #0f0d14;
+  color: #c4ff7a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+.session-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.session-actions button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #2a2838;
+  color: #ddd;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #visual-canvas {
+    filter: none;
+  }
+}
