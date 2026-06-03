@@ -2,6 +2,10 @@
 
 Reproductor web local con visualizador **SpaceX Starship** en wireframe 3D synthwave, reactivo al audio. Estética MP3 retro. Pensado para que **humanos y agentes** (p. ej. Hermes) compartan sesiones de escucha sin ser un Spotify.
 
+**Retomar otra sesión:** lee [`docs/SESSION-HANDOFF.md`](docs/SESSION-HANDOFF.md) (estado completo, v0.1→v0.3, próximos pasos).
+
+**Repo:** https://github.com/claudecontinuum-glitch/GrokPlayer
+
 ## Requisitos
 
 - [Node.js](https://nodejs.org/) 20 o superior
