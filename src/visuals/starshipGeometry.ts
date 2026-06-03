@@ -1,15 +1,18 @@
 import * as THREE from "three";
 
-/** Constantes fáciles de pulir — proporciones SpaceX Starship (upper stage) */
+/**
+ * Constantes para pulir la silueta — edita aquí con calma.
+ * Proporción inspirada en Starship upper stage (no mesh oficial).
+ */
 export const SHIP = {
-  totalHeight: 4.2,
-  bodyRadius: 0.45,
-  coneHeight: 1.05,
-  bodyHeight: 2.85,
-  finHeight: 0.35,
-  finWidth: 0.28,
-  engineY: -2.05,
-  engineRadius: 0.12,
+  bodyRadius: 0.52,
+  coneHeight: 1.25,
+  bodyHeight: 3.0,
+  finHeight: 0.42,
+  finSpan: 0.38,
+  engineY: -2.15,
+  engineRadius: 0.11,
+  skirtHeight: 0.22,
 } as const;
 
 type Segment = [THREE.Vector3, THREE.Vector3];
@@ -54,93 +57,135 @@ function coneLines(apexY: number, baseY: number, baseR: number, sides: number): 
   return out;
 }
 
+/** Aleta grid estilo SpaceX — placa triangular + refuerzo */
 function gridFin(baseY: number, angle: number): Segment[] {
-  const { finHeight, finWidth, bodyRadius } = SHIP;
-  const cx = Math.cos(angle) * bodyRadius;
-  const cz = Math.sin(angle) * bodyRadius;
-  const nx = Math.cos(angle);
-  const nz = Math.sin(angle);
-  const root = new THREE.Vector3(cx, baseY, cz);
-  const tip = new THREE.Vector3(cx + nx * finWidth, baseY + finHeight * 0.3, cz + nz * finWidth);
-  const top = new THREE.Vector3(cx, baseY + finHeight, cz);
-  const inner = new THREE.Vector3(cx - nx * finWidth * 0.35, baseY + finHeight * 0.5, cz - nz * finWidth * 0.35);
-  return [seg(root, tip), seg(tip, top), seg(top, inner), seg(inner, root), seg(root, top)];
+  const { bodyRadius, finHeight, finSpan } = SHIP;
+  const ca = Math.cos(angle);
+  const sa = Math.sin(angle);
+  const rootOut = new THREE.Vector3(ca * bodyRadius, baseY, sa * bodyRadius);
+  const rootIn = new THREE.Vector3(ca * (bodyRadius - 0.06), baseY + 0.05, sa * (bodyRadius - 0.06));
+  const topOut = new THREE.Vector3(ca * (bodyRadius + finSpan), baseY + finHeight, sa * (bodyRadius + finSpan));
+  const topIn = new THREE.Vector3(ca * (bodyRadius + finSpan * 0.35), baseY + finHeight * 0.85, sa * (bodyRadius + finSpan * 0.35));
+  const midFold = new THREE.Vector3(ca * (bodyRadius + finSpan * 0.7), baseY + finHeight * 0.45, sa * (bodyRadius + finSpan * 0.7));
+
+  return [
+    seg(rootOut, topOut),
+    seg(rootIn, topIn),
+    seg(rootOut, rootIn),
+    seg(topOut, topIn),
+    seg(rootOut, midFold),
+    seg(midFold, topOut),
+  ];
 }
 
-function engineCircle(y: number, x: number, z: number, r: number, segs: number): Segment[] {
+function engineBell(y: number, x: number, z: number, r: number): Segment[] {
   const out: Segment[] = [];
-  let prev: THREE.Vector3 | null = null;
-  for (let i = 0; i <= segs; i++) {
-    const t = (i / segs) * Math.PI * 2;
-    const p = new THREE.Vector3(x + Math.cos(t) * r, y, z + Math.sin(t) * r);
-    if (prev) out.push(seg(prev, p));
-    prev = p;
+  out.push(...ringToSegments(ringY(y, r, 10).map((p) => new THREE.Vector3(p.x + x, p.y, p.z + z))));
+  out.push(...ringToSegments(ringY(y - 0.06, r * 0.55, 6).map((p) => new THREE.Vector3(p.x + x, p.y, p.z + z))));
+  const throat = new THREE.Vector3(x, y - 0.1, z);
+  for (let i = 0; i < 6; i++) {
+    const t = (i / 6) * Math.PI * 2;
+    out.push(seg(throat, new THREE.Vector3(x + Math.cos(t) * r, y, z + Math.sin(t) * r)));
   }
   return out;
 }
 
-function flameLines(y: number, spread: number): Segment[] {
-  const out: Segment[] = [];
-  const base = [
-    new THREE.Vector3(-spread, y, 0),
-    new THREE.Vector3(spread, y, 0),
-    new THREE.Vector3(0, y, -spread),
-    new THREE.Vector3(0, y, spread),
-  ];
-  const tip = new THREE.Vector3(0, y - 0.55, 0);
-  for (const b of base) out.push(seg(b, tip));
-  return out;
+function ringToSegments(pts: THREE.Vector3[]): Segment[] {
+  return connectRing(pts);
 }
 
-/** Construye segmentos de línea del Starship (upper stage). */
-export function buildStarshipSegments(): Segment[] {
-  const { bodyRadius, coneHeight, bodyHeight, engineY, engineRadius } = SHIP;
+function buildHullSegments(): Segment[] {
+  const { bodyRadius, coneHeight, bodyHeight, engineY, skirtHeight } = SHIP;
   const coneBaseY = bodyHeight * 0.5;
   const bodyBottomY = -bodyHeight * 0.5;
-  const finBaseY = bodyBottomY + 0.15;
-
+  const finBaseY = bodyBottomY + 0.22;
   const segments: Segment[] = [];
 
-  segments.push(...coneLines(coneBaseY + coneHeight, coneBaseY, bodyRadius, 8));
+  segments.push(...coneLines(coneBaseY + coneHeight, coneBaseY, bodyRadius, 10));
 
-  const noseRing = ringY(coneBaseY + coneHeight * 0.55, bodyRadius * 0.18, 6);
+  const noseTip = new THREE.Vector3(0, coneBaseY + coneHeight + 0.08, 0);
+  const noseRing = ringY(coneBaseY + coneHeight * 0.72, bodyRadius * 0.12, 6);
+  for (const p of noseRing) segments.push(seg(noseTip, p));
+  segments.push(...connectRing(ringY(coneBaseY + coneHeight * 0.45, bodyRadius * 0.32, 8)));
   segments.push(...connectRing(noseRing));
 
-  const ringSegs = 10;
-  const bodyTop = ringY(coneBaseY, bodyRadius, ringSegs);
-  const bodyMid = ringY(0, bodyRadius, ringSegs);
-  const bodyLow = ringY(bodyBottomY, bodyRadius * 1.02, ringSegs);
-  segments.push(...connectRing(bodyTop), ...connectRing(bodyMid), ...connectRing(bodyLow));
-  segments.push(...connectVertical([bodyTop, bodyMid, bodyLow]));
+  const ringSegs = 12;
+  const rings = [
+    ringY(coneBaseY, bodyRadius, ringSegs),
+    ringY(coneBaseY * 0.35, bodyRadius, ringSegs),
+    ringY(0, bodyRadius, ringSegs),
+    ringY(bodyBottomY, bodyRadius * 1.03, ringSegs),
+  ];
+  for (const r of rings) segments.push(...connectRing(r));
+  segments.push(...connectVertical(rings));
 
-  const interstage = ringY(bodyBottomY - 0.05, bodyRadius * 1.08, 12);
+  const skirtTop = bodyBottomY - 0.02;
+  const skirtBot = skirtTop - skirtHeight;
+  segments.push(
+    ...coneLines(skirtTop, skirtBot, bodyRadius * 1.12, 10).map(([a, b]) => {
+      return [a, b] as Segment;
+    })
+  );
+
+  const interstage = ringY(skirtBot, bodyRadius * 1.14, 14);
   segments.push(...connectRing(interstage));
-  for (let i = 0; i < 4; i++) {
-    const a = interstage[i];
-    const b = bodyLow[i % bodyLow.length];
-    segments.push(seg(a, new THREE.Vector3(b.x, b.y, b.z)));
-  }
 
   for (let i = 0; i < 4; i++) {
     const angle = (i / 4) * Math.PI * 2 + Math.PI * 0.25;
     segments.push(...gridFin(finBaseY, angle));
   }
 
-  const engineOffsets = [
-    [0, 0],
-    [0.22, 0.12],
-    [-0.22, 0.12],
-  ];
-  for (const [ex, ez] of engineOffsets) {
-    segments.push(...engineCircle(engineY, ex, ez, engineRadius, 8));
+  const legY = skirtBot + 0.04;
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + Math.PI * 0.5;
+    const lx = Math.cos(a) * (bodyRadius + 0.05);
+    const lz = Math.sin(a) * (bodyRadius + 0.05);
+    segments.push(
+      seg(new THREE.Vector3(lx, legY, lz), new THREE.Vector3(lx * 1.08, legY - 0.18, lz * 1.08))
+    );
   }
 
-  segments.push(...flameLines(engineY - 0.08, 0.14));
+  segments.push(
+    seg(new THREE.Vector3(0, coneBaseY * 0.2, bodyRadius), new THREE.Vector3(0, bodyBottomY, bodyRadius))
+  );
+
+  const engineOffsets: [number, number][] = [
+    [0, 0],
+    [0.2, 0.11],
+    [-0.2, 0.11],
+  ];
+  for (const [ex, ez] of engineOffsets) {
+    segments.push(...engineBell(engineY, ex, ez, SHIP.engineRadius));
+  }
 
   return segments;
 }
 
-export function segmentsToGeometry(segments: Segment[]): THREE.BufferGeometry {
+/** Llamas separadas — la escena las escala con los graves */
+export function buildPlumeSegments(): Segment[] {
+  const y = SHIP.engineY - 0.12;
+  const segments: Segment[] = [];
+  const layers = [
+    { spread: 0.1, depth: 0.45 },
+    { spread: 0.2, depth: 0.75 },
+    { spread: 0.28, depth: 1.0 },
+  ];
+  for (const { spread, depth } of layers) {
+    const tip = new THREE.Vector3(0, y - depth, 0);
+    for (let i = 0; i < 8; i++) {
+      const t = (i / 8) * Math.PI * 2;
+      const base = new THREE.Vector3(Math.cos(t) * spread, y, Math.sin(t) * spread);
+      segments.push(seg(base, tip));
+    }
+    segments.push(
+      seg(new THREE.Vector3(-spread, y, 0), new THREE.Vector3(spread, y, 0)),
+      seg(new THREE.Vector3(0, y, -spread), new THREE.Vector3(0, y, spread))
+    );
+  }
+  return segments;
+}
+
+function segmentsToGeometry(segments: Segment[]): THREE.BufferGeometry {
   const positions: number[] = [];
   for (const [a, b] of segments) {
     positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
@@ -150,14 +195,51 @@ export function segmentsToGeometry(segments: Segment[]): THREE.BufferGeometry {
   return geo;
 }
 
-export function createStarshipLineObject(): THREE.LineSegments {
-  const geo = segmentsToGeometry(buildStarshipSegments());
+function lineObj(
+  segments: Segment[],
+  color: number,
+  opacity: number,
+  name: string,
+  blending: THREE.Blending = THREE.NormalBlending
+): THREE.LineSegments {
   const mat = new THREE.LineBasicMaterial({
-    color: 0x00f5ff,
+    color,
     transparent: true,
-    opacity: 0.95,
+    opacity,
+    blending,
+    depthWrite: blending === THREE.NormalBlending,
   });
-  const lines = new THREE.LineSegments(geo, mat);
-  lines.name = "starship";
-  return lines;
+  const mesh = new THREE.LineSegments(segmentsToGeometry(segments), mat);
+  mesh.name = name;
+  return mesh;
+}
+
+export type StarshipVisual = {
+  root: THREE.Group;
+  hull: THREE.LineSegments;
+  glow: THREE.LineSegments;
+  plume: THREE.LineSegments;
+};
+
+export function createStarshipVisual(): StarshipVisual {
+  const hullSegs = buildHullSegments();
+  const hull = lineObj(hullSegs, 0x00f5ff, 0.92, "hull");
+  const glow = lineObj(hullSegs, 0x00f5ff, 0.22, "glow", THREE.AdditiveBlending);
+  glow.scale.setScalar(1.03);
+
+  const plume = lineObj(buildPlumeSegments(), 0xff6ec7, 0.75, "plume", THREE.AdditiveBlending);
+
+  const root = new THREE.Group();
+  root.name = "starship";
+  root.add(glow);
+  root.add(hull);
+  root.add(plume);
+
+  root.rotation.order = "YXZ";
+  return { root, hull, glow, plume };
+}
+
+/** @deprecated Usar createStarshipVisual */
+export function createStarshipLineObject(): THREE.LineSegments {
+  return createStarshipVisual().hull;
 }

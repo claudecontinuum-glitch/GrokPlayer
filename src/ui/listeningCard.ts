@@ -71,15 +71,16 @@ export function buildListeningCardHtml(data: CardInput): string {
 </html>`;
 }
 
-const STARSHIP_ASCII = `       /\\
-      /  \\
-     |    |
-     |    |
-    /|====|\\
-   / |    | \\
-  /__|____|__\\
-     | || |
-    🔥 🔥 🔥`;
+const STARSHIP_ASCII = `        /\\
+       /  \\
+      /____\\
+     |      |
+     |      |
+    /|======|\\
+   < |      | >
+  /__|______|__\\
+    / |\\ /| \\
+   🔥  🔥  🔥`;
 
 function escapeHtml(s: string): string {
   return s

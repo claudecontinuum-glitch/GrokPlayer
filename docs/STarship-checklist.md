@@ -1,14 +1,17 @@
-# Checklist visual Starship
+# Checklist visual Starship (v0.3)
 
-Marca cuando la silueta se lea bien en la pantalla LCD (perfil 3/4):
+Marca en la pantalla LCD (vista 3/4):
 
-- [ ] Cono nasal visible en la parte superior
-- [ ] Cuerpo cilíndrico con anillos horizontales
-- [ ] Cuatro grid fins en la base
-- [ ] Tres motores (círculos) en el fondo
-- [ ] Líneas de llama bajo los motores
+- [ ] Cono nasal + punta y anillos del fairing
+- [ ] Cuerpo cilíndrico con varios anillos horizontales
+- [ ] Falda / interstage sobre los motores
+- [ ] Cuatro grid fins tipo “placa” en la base
+- [ ] Cuatro patas (líneas cortas) bajo la falda
+- [ ] Tres campanas Raptor (círculo + garganta)
+- [ ] Llamas en capas que crecen con los graves
+- [ ] Halo glow alrededor del hull
+- [ ] Sol en el horizonte + grid en perspectiva
+- [ ] Cielo degradado synthwave
 - [ ] Loop orbital sin salir del encuadre
-- [ ] Color cian → magenta en graves fuertes
-- [ ] Estrellas y grid synthwave legibles de fondo
 
-Ajusta en `src/visuals/starshipGeometry.ts` si falta algún detalle.
+Guía de constantes: [`VISUAL-TUNING.md`](VISUAL-TUNING.md)
